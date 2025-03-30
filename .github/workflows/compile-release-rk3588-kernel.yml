@@ -78,7 +78,9 @@ on:
           - -summer-growing
           - -autumn-harvesting
           - -winter-storing
-          - -rk3588-panthor
+          - -rk3588-panthor-a
+          - -rk3588-panthor-b
+          
       kernel_config:
         description: "Set the path of kernel .config"
         required: false
