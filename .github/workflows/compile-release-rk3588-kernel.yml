@@ -167,6 +167,22 @@ jobs:
           kernel_config: ${{ inputs.kernel_config }}
           compress_format: ${{ inputs.compress_format }}
 
+      - name: Rename files with timestamp (China time)
+        run: |
+          # 设置时区为中国时间
+          sudo timedatectl set-timezone Asia/Shanghai
+          # 获取当前时间戳
+          timestamp=$(date +"%Y%m%d%H%M%S")
+          for file in $PACKAGED_OUTPUTPATH/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              extension="${filename##*.}"
+              name="${filename%.*}"
+              new_filename="${name}_${timestamp}.${extension}"
+              mv "$file" "$PACKAGED_OUTPUTPATH/$new_filename"
+            fi
+          done
+
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
         if: ${{ env.PACKAGED_STATUS }} == 'success' && !cancelled()
@@ -177,7 +193,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             - The kernel can be used to compile Armbian and OpenWrt.
-            - The kernel source code comes from: ${{ inputs.kernel_source }}
-            - The kernel compilation toolchain: ${{ inputs.kernel_toolchain }}
+            - The kernel source code comes from: ${{ env.KERNEL_SOURCE }}
+            - The kernel compilation toolchain: ${{ env.KERNEL_TOOLCHAIN }}
             - This is a dedicated kernel for `Rockchip rk3588` and is not compatible with other series.
-            - 这是 `Rockchip rk3588` 专用内核，和其他系列不通用。
+            - 这是 `Rockchip rk3588` 专用内核，已打开panthor，和其他系列不通用。
